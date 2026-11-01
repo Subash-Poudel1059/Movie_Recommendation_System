@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Recommender</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Movie Recommender System</h1>
+        <select id="movieSelect">
+            {% for movie in movies %}
+                <option value="{{ movie }}">{{ movie }}</option>
+            {% endfor %}
+        </select>
+        <button id="recommendBtn">Show Recommendations</button>
+        
+        <div class="movie-container" id="recommendations"></div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            $("#recommendBtn").click(function() {
+                let selectedMovie = $("#movieSelect").val();
+                $.ajax({
+                    url: "/recommend",
+                    type: "POST",
+                    contentType: "application/json",
+                    data: JSON.stringify({ movie: selectedMovie }),
+                    success: function(response) {
+                        $("#recommendations").html('');
+                        response.movies.forEach((movie, index) => {
+                            let movieItem = `
+                                <div class="movie">
+                                    <img src="${response.posters[index]}" alt="${movie}">
+                                    <h3>${movie}</h3>
+                                </div>`;
+                            $("#recommendations").append(movieItem);
+                        });
+                    },
+                    error: function() {
+                        alert("Movie not found! Try another one.");
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
